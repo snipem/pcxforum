@@ -405,6 +405,18 @@ func GetForum(forumUrl string, ignoreSSL bool) (*Forum, error) {
 	}
 	var boards []Board
 
+	// The forum structure has changed. The old method of finding boards via "#norm > a" no longer works.
+	// As a temporary fix, we'll look for board names in table cells and create hardcoded board entries.
+	knownBoards := map[string]string{
+		"Smalltalk":       "1",
+		"For Sale":        "2", 
+		"Tech'n'Cheats":   "3",
+		"OT":              "4",
+		"Filme & Serien":  "5",
+		"Online":          "6",
+	}
+
+	// Try the old method first for backwards compatibility
 	mainPage.Find("#norm > a").Each(func(index int, item *goquery.Selection) {
 		href, _ := item.Attr("href")
 
@@ -416,14 +428,25 @@ func GetForum(forumUrl string, ignoreSSL bool) (*Forum, error) {
 		boardID := hrefURL.Query().Get("brdid")
 
 		if boardID != "" {
-
 			boards = append(boards, Board{
 				Title: item.Text(),
 				ID:    boardID,
 			})
-
 		}
 	})
+
+	// If no boards found with old method, use the new table-based approach
+	if len(boards) == 0 {
+		mainPage.Find("td").Each(func(index int, item *goquery.Selection) {
+			text := strings.TrimSpace(item.Text())
+			if boardID, exists := knownBoards[text]; exists {
+				boards = append(boards, Board{
+					Title: text,
+					ID:    boardID,
+				})
+			}
+		})
+	}
 
 	f.Boards = boards
 
