@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/user"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -23,7 +22,7 @@ import (
 )
 
 // DefaultBoardURL is the default base url of the forum
-var DefaultBoardURL = "https://www.pcx-forum.com/forum/"
+var DefaultBoardURL = "https://pcx-forum.com/"
 
 // Forum represents the whole forum
 type Forum struct {
@@ -177,22 +176,30 @@ func (f *Forum) GetMessage(resource string) (Message, error) {
 		return Message{}, err
 	}
 
-	doc.Find(".bg2 > td > font").Each(func(i int, s *goquery.Selection) {
-		m.Content = s.Text()
-	})
+	// Get content from article.messagebody
+	m.Content = doc.Find("article.messagebody").Text()
 
-	doc.Find("table > tbody > tr > td > table > tbody > tr > td > b").Each(func(i int, s *goquery.Selection) {
-		m.Topic = s.Text()
-	})
+	// Get topic from header.messageheader div.msgsubject
+	m.Topic = doc.Find("header.messageheader > div.msgsubject").Text()
 
-	doc.Find("table > tbody > tr:nth-child(2) > td#norm > a").Each(func(i int, s *goquery.Selection) {
-		// Extract user id from link in username
-		m.Author.Name = s.Text()
-		href, _ := s.Attr("href")
-		var re = regexp.MustCompile(".*usrid=")
-		out := re.ReplaceAllString(href, "")
-		m.Author.ID, _ = strconv.Atoi(out)
-	})
+	// Get author and date from header.messageheader div.msgfrom
+	msgfrom := doc.Find("header.messageheader > div.msgfrom").Text()
+	// Format: "von Author am DD.MM.YY um HH:MM"
+	if strings.Contains(msgfrom, "von ") {
+		parts := strings.Split(msgfrom, " am ")
+		if len(parts) >= 1 {
+			author := strings.TrimPrefix(parts[0], "von ")
+			// Remove <b> tags handling
+			author = strings.TrimSpace(author)
+			author = strings.ReplaceAll(author, "<b>", "")
+			author = strings.ReplaceAll(author, "</b>", "")
+			m.Author.Name = author
+		}
+		if len(parts) >= 2 {
+			dateStr := strings.Split(parts[1], " um ")[0]
+			m.Date = dateStr
+		}
+	}
 
 	return m, nil
 }
@@ -405,7 +412,7 @@ func GetForum(forumUrl string, ignoreSSL bool) (*Forum, error) {
 	}
 	var boards []Board
 
-	mainPage.Find("#norm > a").Each(func(index int, item *goquery.Selection) {
+	mainPage.Find(".brdlstname a").Each(func(index int, item *goquery.Selection) {
 		href, _ := item.Attr("href")
 
 		hrefURL, err := url.Parse(href)
@@ -439,50 +446,41 @@ func (f *Forum) GetBoard(boardID string) Board {
 	resource := "pxmboard.php?mode=threadlist&brdid=" + boardID + "&sortorder=last"
 	doc, _ := f.getDoc(resource)
 
-	board.Title = doc.Find(".currentBoard > span").Text()
+	board.Title = doc.Find(".navitemboard.active").Text()
 	board.ID = boardID
 
-	doc.Find("#threadlist > a").Each(func(i int, s *goquery.Selection) {
+	doc.Find("main.threadlist > article").Each(func(i int, s *goquery.Selection) {
 		var t Thread
-		t.Title = s.Find("font").Text()
-		t.Link, _ = s.Attr("href")
+		link := s.Find("a.threadtitle")
+		t.Title = link.Text()
+		t.Link, _ = link.Attr("href")
 
-		id, _ := s.Attr("onclick")
+		id, _ := link.Attr("onclick")
 
 		id = strings.Replace(id, "ld(", "", 1)
 		t.ID = strings.Replace(id, ",0)", "", 1)
-
-		board.Threads = append(board.Threads, t)
-	})
-
-	doc.Find("#threadlist > font").Each(func(i int, s *goquery.Selection) {
-		// For each item found, get the band and title
-		var t = board.Threads[i]
-		t.Author = s.Find("span").Text()
-		// fmt.Printf("Thread %d: %s - %s - %s\n", i, t.Title, t.Link, t.Author)
-
-		// Remove sub element from doc that is included in date
-		s.Find("b").Remove()
-		foundDate := s.Text()
-		foundDate = strings.Replace(foundDate, "\n", " ", -1)
-		t.Date = strings.Replace(foundDate, " am ", "", 1)
-
-		board.Threads[i] = t
-	})
-
-	doc.Find("#threadlist > img").Each(func(i int, s *goquery.Selection) {
-
-		var t = board.Threads[i]
-
-		imageSrc, _ := s.Attr("src")
-
-		if strings.Contains(imageSrc, "fixed.gif") {
-			t.IsSticky = true
-		} else {
-			t.IsSticky = false
+		// Handle case where onclick has msg id: ld(1627,87331)
+		parts := strings.Split(t.ID, ",")
+		if len(parts) > 0 {
+			t.ID = parts[0]
 		}
 
-		board.Threads[i] = t
+		meta := s.Find("span.threadmeta")
+		t.Author = meta.Find("strong").First().Text()
+
+		// Extract date from meta text
+		metaText := meta.Text()
+		// Format: "- Author am DD.MM.YY HH:MM"
+		if idx := strings.Index(metaText, " am "); idx != -1 {
+			dateStart := idx + 4
+			// Find the date portion (DD.MM.YY HH:MM)
+			dateEnd := strings.Index(metaText[dateStart:], "(")
+			if dateEnd != -1 {
+				t.Date = strings.TrimSpace(metaText[dateStart : dateStart+dateEnd])
+			}
+		}
+
+		board.Threads = append(board.Threads, t)
 	})
 
 	return board
