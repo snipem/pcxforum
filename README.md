@@ -1,4 +1,4 @@
-# Maniac Forum UI
+# PCX Forum UI
 
 [![Build Status](https://travis-ci.com/snipem/pcxforum.svg?branch=master)](https://travis-ci.com/snipem/pcxforum)
 [![Coverage Status](https://coveralls.io/repos/github/snipem/pcxforum/badge.svg)](https://coveralls.io/github/snipem/pcxforum)
