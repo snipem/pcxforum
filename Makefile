@@ -1,7 +1,7 @@
 .PHONY: test
 
-# maniacforum parameters
-BINARY_NAME=maniacforum
+# pcxforum parameters
+BINARY_NAME=pcxforum
 
 # Go parameters
 GOCMD=go
@@ -11,7 +11,7 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOINSTALL=$(GOCMD) install -v
 GOGET=$(GOCMD) get
-BINARY_NAME=maniacforum
+BINARY_NAME=pcxforum
 
 all: test build install
 build:
@@ -24,12 +24,12 @@ clean:
 		rm -f $(BINARY_UNIX)
 
 run:
-		MANIACFORUM_READLOG_FILE=/tmp/maniac_read \
-		MANIACFORUM_DEBUG=true \
-		go run maniacforum.go
+		PCXFORUM_READLOG_FILE=/tmp/maniac_read \
+		PCXFORUM_DEBUG=true \
+		go run pcxforum.go
 	
 ui:
-		tmux send-keys -t right "C-c"; sleep 0.1; tmux send-keys -t right "cd ${GOPATH}/src/github.com/snipem/maniacforum && make run" "C-m"; tmux select-pane -t right
+		tmux send-keys -t right "C-c"; sleep 0.1; tmux send-keys -t right "cd ${GOPATH}/src/github.com/snipem/pcxforum && make run" "C-m"; tmux select-pane -t right
 
 run_binary:
 		$(GOBUILD) -o $(BINARY_NAME)

@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/skratchdot/open-golang/open"
-	"github.com/snipem/maniacforum/board"
-	"github.com/snipem/maniacforum/util"
+	"github.com/snipem/pcxforum/board"
+	"github.com/snipem/pcxforum/util"
 
 	ui "github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
@@ -21,21 +21,21 @@ import (
 
 // Forum > Board > Threads > Message
 
-// maniacforum ...
-type maniacforum struct {
-	active   maniacforumModel
+// pcxforum ...
+type pcxforum struct {
+	active   pcxforumModel
 	ui       uiContent
 }
 
-type maniacforumModel struct {
+type pcxforumModel struct {
 	threads board.Thread
 	board   board.Board
 	forum   *board.Forum
 	message board.Message
-	state   maniacforumState
+	state   pcxforumState
 }
 
-type maniacforumState struct {
+type pcxforumState struct {
 	activePane int
 	maxPane    int
 }
@@ -48,7 +48,7 @@ type uiContent struct {
 }
 
 var version = "dev"
-var helpPage = `maniacforum ` + version + `
+var helpPage = `pcxforum ` + version + `
 
 Hilfe
 ======
@@ -75,10 +75,10 @@ Globale Steuerung
    J  - Nächster Thread
    K  - Vorheriger Thread
 
-[https://github.com/snipem/maniacforum]
+[https://github.com/snipem/pcxforum]
 `
 
-func (mf *maniacforum) loadBoard() {
+func (mf *pcxforum) loadBoard() {
 	boardID := mf.active.forum.Boards[mf.ui.tabpane.ActiveTabIndex].ID
 	mf.active.board = mf.active.forum.GetBoard(boardID)
 	// threads = mf.active.board.Threads
@@ -102,7 +102,7 @@ func (mf *maniacforum) loadBoard() {
 	}
 }
 
-func (mf *maniacforum) loadMessage() {
+func (mf *pcxforum) loadMessage() {
 	if len(mf.active.threads.Messages) > 0 {
 		start := time.Now()
 		var err error
@@ -143,7 +143,7 @@ func (mf *maniacforum) loadMessage() {
 }
 
 // selectNextUnreadMessage selects the next unread message in the current thread
-func (mf *maniacforum) selectNextUnreadMessage() {
+func (mf *pcxforum) selectNextUnreadMessage() {
 	for i := mf.ui.threadPanel.SelectedRow + 1; i < len(mf.active.threads.Messages); i++ {
 		if !mf.active.threads.Messages[i].Read {
 			mf.ui.threadPanel.SelectedRow = i
@@ -153,7 +153,7 @@ func (mf *maniacforum) selectNextUnreadMessage() {
 }
 
 // answerMessage uses the default system browser to open the answerMessage link of the currently selected message
-func (mf *maniacforum) answerMessage() {
+func (mf *pcxforum) answerMessage() {
 	answerURL := mf.active.forum.URL + "pxmboard.php?mode=messageform&brdid=" + mf.active.board.ID + "&msgid=" + mf.active.message.ID
 	err := open.Run(answerURL)
 	if err != nil {
@@ -162,7 +162,7 @@ func (mf *maniacforum) answerMessage() {
 }
 
 // openMessage uses the default system browser to open currently selected message
-func (mf *maniacforum) openMessage() {
+func (mf *pcxforum) openMessage() {
 	answerURL := mf.active.forum.URL + "pxmboard.php?mode=message&brdid=" + mf.active.board.ID + "&msgid=" + mf.active.message.ID
 	err := open.Run(answerURL)
 	if err != nil {
@@ -171,7 +171,7 @@ func (mf *maniacforum) openMessage() {
 }
 
 // loadThread loads selected thread from board and displays the first message
-func (mf *maniacforum) loadThread() {
+func (mf *pcxforum) loadThread() {
 	// FIXME this logic with Threads and threads seems illogic
 	var err error
 	mf.active.message, err = mf.active.forum.GetMessage(mf.active.board.Threads[mf.ui.boardPanel.SelectedRow].Link)
@@ -200,13 +200,13 @@ func (mf *maniacforum) loadThread() {
 	}
 }
 
-func (mf *maniacforum) renderThread() {
+func (mf *pcxforum) renderThread() {
 
 	mf.ui.threadPanel.Rows = nil
 
 	// Clear thread panel
 	for _, m := range mf.active.threads.Messages {
-		messageColor := "red"
+		messageColor := "blue"
 
 		if m.Read {
 			messageColor = "grey"
@@ -224,7 +224,7 @@ func (mf *maniacforum) renderThread() {
 }
 
 // openLinks opens a link in the displayed message with the default system browser
-func (mf *maniacforum) openLink(nr int) error {
+func (mf *pcxforum) openLink(nr int) error {
 	if nr > len(mf.active.message.Links) {
 		return fmt.Errorf("no link with number %d in message", nr)
 	}
@@ -239,7 +239,7 @@ func (mf *maniacforum) openLink(nr int) error {
 	return nil
 }
 
-func (mf *maniacforum) loadForum(forumUrl string, ignoreSSL bool) (err error) {
+func (mf *pcxforum) loadForum(forumUrl string, ignoreSSL bool) (err error) {
 	mf.active.forum, err = board.GetForum(forumUrl, ignoreSSL)
 
 	if err != nil {
@@ -260,7 +260,7 @@ func (mf *maniacforum) loadForum(forumUrl string, ignoreSSL bool) (err error) {
 	return nil
 }
 
-func (mf *maniacforum) initialize() {
+func (mf *pcxforum) initialize() {
 	// Initialize
 	mf.active.state.maxPane = 3
 	mf.loadBoard()
@@ -268,9 +268,9 @@ func (mf *maniacforum) initialize() {
 }
 
 // colorize the ui depending on the active pane
-func (mf *maniacforum) colorize() {
+func (mf *pcxforum) colorize() {
 	inactiveColor := ui.ColorWhite
-	activeColor := ui.ColorRed
+	activeColor := ui.ColorBlue
 
 	mf.ui.boardPanel.TextStyle = ui.NewStyle(activeColor)
 	mf.ui.threadPanel.TextStyle = ui.NewStyle(activeColor)
@@ -309,7 +309,7 @@ func run() error {
 
 	flag.Parse()
 
-	var mf maniacforum
+	var mf pcxforum
 
 	if err := ui.Init(); err != nil {
 		return fmt.Errorf("failed to initialize termui: %v", err)

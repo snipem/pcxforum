@@ -44,7 +44,7 @@ func wrapAndformatQuote(unformatted string, wrapAt int) string {
 		wrappedLines := wrapLine(line, wrapAt)
 		if r.MatchString(line) { // if unwrapped line is a quote
 			for _, wrappedLine := range wrappedLines {
-				formatted = formatted + "[" + wrappedLine + "](fg:red)" + "\n"
+				formatted = formatted + "[" + wrappedLine + "](fg:blue)" + "\n"
 			}
 		} else { // just wrapp lines and append them
 			for _, wrappedLine := range wrappedLines {
@@ -124,7 +124,7 @@ func ExtractIDsFromLink(link string) (boardID string, threadID string, messageID
 	if err != nil {
 		return "", "", "", err
 	}
-	// https://www.maniac-forum.de/forum/pxmboard.php?mode=board&brdid=6&thrdid=178514&msgid=4746825"
+	// https://www.pcx-forum.com/forum/pxmboard.php?mode=board&brdid=6&thrdid=178514&msgid=4746825"
 	boardID = u.Query().Get("brdid")
 	threadID = u.Query().Get("thrdid")
 	messageID = u.Query().Get("msgid")

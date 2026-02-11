@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/snipem/maniacforum/util"
+	"github.com/snipem/pcxforum/util"
 
 	"net/url"
 
@@ -23,7 +23,7 @@ import (
 )
 
 // DefaultBoardURL is the default base url of the forum
-var DefaultBoardURL = "https://www.maniac-forum.de/forum/"
+var DefaultBoardURL = "https://www.pcx-forum.com/forum/"
 
 // Forum represents the whole forum
 type Forum struct {
@@ -88,8 +88,8 @@ func init() {
 	readLogfile = getReadLogFilePath()
 
 	logfile := "/dev/null"
-	if _, ok := os.LookupEnv("MANIACFORUM_DEBUG"); ok {
-		logfile = "maniacforum.log"
+	if _, ok := os.LookupEnv("PCXFORUM_DEBUG"); ok {
+		logfile = "pcxforum.log"
 	}
 
 	f, err := os.OpenFile(logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -109,7 +109,7 @@ func ClearCache() {
 // getReadLogFilePath from env var or default .config file path
 func getReadLogFilePath() string {
 	var path string
-	if env, ok := os.LookupEnv("MANIACFORUM_READLOG_FILE"); ok {
+	if env, ok := os.LookupEnv("PCXFORUM_READLOG_FILE"); ok {
 		path = env
 	} else {
 		usr, _ := user.Current()
@@ -271,7 +271,7 @@ func (f *Forum) httpGet(url string) (string, error) {
 	Logger.Printf("Fetching %s", strings.Replace(url, f.URL, "", 1))
 
 	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Add("User-Agent", "maniacforum-cli")
+	req.Header.Add("User-Agent", "pcxforum-cli")
 	res, err := client.Do(req)
 
 	if err != nil {
@@ -298,7 +298,7 @@ func (f *Forum) httpPost(url string, data url.Values) (string, error) {
 
 	// TODO Use User Agent
 	// req, err := http.NewRequest("POST", url, nil)
-	// req.Header.Add("User-Agent", "maniacforum-cli")
+	// req.Header.Add("User-Agent", "pcxforum-cli")
 	// req.PostForm = data
 	res, err := client.PostForm(url, data)
 

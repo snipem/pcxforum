@@ -1,15 +1,15 @@
 # Maniac Forum UI
 
-[![Build Status](https://travis-ci.com/snipem/maniacforum.svg?branch=master)](https://travis-ci.com/snipem/maniacforum)
-[![Coverage Status](https://coveralls.io/repos/github/snipem/maniacforum/badge.svg)](https://coveralls.io/github/snipem/maniacforum)
+[![Build Status](https://travis-ci.com/snipem/pcxforum.svg?branch=master)](https://travis-ci.com/snipem/pcxforum)
+[![Coverage Status](https://coveralls.io/repos/github/snipem/pcxforum/badge.svg)](https://coveralls.io/github/snipem/pcxforum)
 
-![Maniacforum Screenshot](res/maniacforum.png "Maniacforum Screenshot")
+![Maniacforum Screenshot](res/pcxforum.png "Maniacforum Screenshot")
 
 ## Download
 
-Downloads für diverse Betriebssysteme finden sich in den [Releases](https://github.com/snipem/maniacforum/releases)
+Downloads für diverse Betriebssysteme finden sich in den [Releases](https://github.com/snipem/pcxforum/releases)
 
-Oder alternativ `go get github.com/snipem/maniacforum`.
+Oder alternativ `go get github.com/snipem/pcxforum`.
 
 ## Hilfe
 
@@ -35,9 +35,9 @@ Oder alternativ `go get github.com/snipem/maniacforum`.
 
 ### Gelesen / Ungelesen Status von Beiträgen
 
-`maniacforum` speichert den Lesestatus von Beiträgen standardmäßig unter `$HOME/.maniacread.log`.
-Der Pfad kann mit der Umgebungsvariable `$MANIACFORUM_READLOG_FILE` überschrieben werden.
-Zum Beispiel für den Sync über Dropbox: `MANIACFORUM_READLOG_FILE="$HOME/dropbox/maniacread.log" maniacforum`.
+`pcxforum` speichert den Lesestatus von Beiträgen standardmäßig unter `$HOME/.maniacread.log`.
+Der Pfad kann mit der Umgebungsvariable `$PCXFORUM_READLOG_FILE` überschrieben werden.
+Zum Beispiel für den Sync über Dropbox: `PCXFORUM_READLOG_FILE="$HOME/dropbox/maniacread.log" pcxforum`.
 
 ## Development
 
@@ -62,5 +62,5 @@ Zum Beispiel für den Sync über Dropbox: `MANIACFORUM_READLOG_FILE="$HOME/dropb
 ### Releasing
 
 * Make git clean
-* Look up latest release under: https://github.com/snipem/maniacforum/releases
+* Look up latest release under: https://github.com/snipem/pcxforum/releases
 * `make TAG_VERSION=1.1.4 release`

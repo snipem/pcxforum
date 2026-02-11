@@ -1,6 +1,6 @@
 package util
 
-// run: go test -timeout 30s github.com/snipem/maniacforum/util
+// run: go test -timeout 30s github.com/snipem/pcxforum/util
 
 import (
 	"testing"
@@ -38,8 +38,8 @@ not commented`
 
 	want := `Erste
 Zeile
-[> Link](fg:red)
-[123](fg:red)
+[> Link](fg:blue)
+[123](fg:blue)
 not
 commented`
 
@@ -51,15 +51,15 @@ commented`
 
 func TestQuoteFormatting(t *testing.T) {
 
-	assert.Equal(t, wrapAndformatQuote("> Test", 100), "[> Test](fg:red)")
+	assert.Equal(t, wrapAndformatQuote("> Test", 100), "[> Test](fg:blue)")
 
 	have := `Bla
 > Test 123
 Ergebnis`
 
 	want := `Bla
-[> Test](fg:red)
-[123](fg:red)
+[> Test](fg:blue)
+[123](fg:blue)
 Ergebnis`
 
 	assert.Equal(t, want, wrapAndformatQuote(have, 7))
@@ -76,7 +76,7 @@ func TestQuoteFormattingNothingToFormat(t *testing.T) {
 
 func TestExtractIDsFromLink(t *testing.T) {
 
-	boardID, threadID, messageID, err := ExtractIDsFromLink("https://www.maniac-forum.de/forum/pxmboard.php?mode=board&brdid=6&thrdid=178514&msgid=4746825")
+	boardID, threadID, messageID, err := ExtractIDsFromLink("https://www.pcx-forum.com/forum/pxmboard.php?mode=board&brdid=6&thrdid=178514&msgid=4746825")
 	assert.NoError(t, err)
 	assert.Equal(t, "6", boardID)
 	assert.Equal(t, "178514", threadID)

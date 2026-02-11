@@ -1,4 +1,4 @@
-module github.com/snipem/maniacforum
+module github.com/snipem/pcxforum
 
 go 1.14
 

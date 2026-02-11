@@ -13,7 +13,7 @@
 
 .idea/
 
-maniacforum
+pcxforum
 dist
 secrets.env
-maniacforum.log
+pcxforum.log
