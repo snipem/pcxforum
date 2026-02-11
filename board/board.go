@@ -105,6 +105,14 @@ func ClearCache() {
 	c.Flush()
 }
 
+func cleanText(text string) string {
+	// Remove leading/trailing whitespace and normalize internal whitespace
+	text = strings.TrimSpace(text)
+	// Replace multiple spaces/newlines with single space
+	text = strings.Join(strings.Fields(text), " ")
+	return text
+}
+
 // getReadLogFilePath from env var or default .config file path
 func getReadLogFilePath() string {
 	var path string
@@ -131,22 +139,38 @@ func (f *Forum) GetThread(threadID string, boardID string) Thread {
 	doc, _ := f.getDoc(resource)
 
 	doc.Find("li").Each(func(i int, s *goquery.Selection) {
-		var m Message
-		m.Topic = s.Find("a > font").Text()
+		// Get topic from a > span
+		topic := cleanText(s.Find("a > span").First().Text())
+		if topic == "" {
+			return
+		}
 
+		var m Message
+		m.Topic = topic
 		m.Hierarchy = s.ParentsFiltered("ul").Length()
 		m.Link, _ = s.Find("a").Attr("href")
-		m.Author.Name = strings.TrimSpace(s.Find("span").Find("span").Text())
 
 		name, _ := s.Find("a").Attr("name")
-
 		m.ID = cleanMessageID(name)
 		m.Read = IsMessageRead(m.ID)
 
-		// Remove sub element from doc that is included in date
-		s.Find("li > span > font > b").Remove()
-		foundDate := s.Find("li > span > font").Text()
-		m.Date = strings.Replace(foundDate, " - ", "", 1)
+		// Extract author and date from the span's HTML
+		// Format: <a>...</a> - <small><b><span>Author</span></b> - DD.MM.YY HH:MM</small>
+		spanHTML, _ := s.Find("span").First().Html()
+
+		// Extract author from <b><span>Author</span></b>
+		authorRe := regexp.MustCompile(`<b>\s*<span[^>]*>\s*([^<]+)\s*</span>\s*</b>`)
+		authorMatch := authorRe.FindStringSubmatch(spanHTML)
+		if len(authorMatch) > 1 {
+			m.Author.Name = cleanText(authorMatch[1])
+		}
+
+		// Extract date after " - " (last one)
+		dateRe := regexp.MustCompile(` - ([^<]+)$`)
+		dateMatch := dateRe.FindStringSubmatch(strings.TrimSpace(spanHTML))
+		if len(dateMatch) > 1 {
+			m.Date = cleanText(dateMatch[1])
+		}
 
 		t.Messages = append(t.Messages, m)
 	})
@@ -452,7 +476,7 @@ func (f *Forum) GetBoard(boardID string) Board {
 	doc.Find("main.threadlist > article").Each(func(i int, s *goquery.Selection) {
 		var t Thread
 		link := s.Find("a.threadtitle")
-		t.Title = link.Text()
+		t.Title = cleanText(link.Text())
 		t.Link, _ = link.Attr("href")
 
 		id, _ := link.Attr("onclick")
@@ -466,7 +490,7 @@ func (f *Forum) GetBoard(boardID string) Board {
 		}
 
 		meta := s.Find("span.threadmeta")
-		t.Author = meta.Find("strong").First().Text()
+		t.Author = cleanText(meta.Find("strong").First().Text())
 
 		// Extract date from meta text
 		metaText := meta.Text()
@@ -476,7 +500,7 @@ func (f *Forum) GetBoard(boardID string) Board {
 			// Find the date portion (DD.MM.YY HH:MM)
 			dateEnd := strings.Index(metaText[dateStart:], "(")
 			if dateEnd != -1 {
-				t.Date = strings.TrimSpace(metaText[dateStart : dateStart+dateEnd])
+				t.Date = cleanText(metaText[dateStart : dateStart+dateEnd])
 			}
 		}
 

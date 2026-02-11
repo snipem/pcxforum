@@ -98,7 +98,7 @@ func (mf *pcxforum) loadBoard() {
 			threadPrefix = "⋌ "
 		}
 
-		mf.ui.boardPanel.Rows = append(mf.ui.boardPanel.Rows, threadPrefix+thread.Title+" ["+thread.Date+"](fg:white)")
+		mf.ui.boardPanel.Rows = append(mf.ui.boardPanel.Rows, threadPrefix+thread.Title+" ["+thread.Date+" "+thread.Author+"](fg:white)")
 	}
 }
 
