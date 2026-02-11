@@ -35,9 +35,9 @@ Oder alternativ `go get github.com/snipem/pcxforum`.
 
 ### Gelesen / Ungelesen Status von Beiträgen
 
-`pcxforum` speichert den Lesestatus von Beiträgen standardmäßig unter `$HOME/.maniacread.log`.
+`pcxforum` speichert den Lesestatus von Beiträgen standardmäßig unter `$HOME/.pcxforumread.log`.
 Der Pfad kann mit der Umgebungsvariable `$PCXFORUM_READLOG_FILE` überschrieben werden.
-Zum Beispiel für den Sync über Dropbox: `PCXFORUM_READLOG_FILE="$HOME/dropbox/maniacread.log" pcxforum`.
+Zum Beispiel für den Sync über Dropbox: `PCXFORUM_READLOG_FILE="$HOME/dropbox/pcxforumread.log" pcxforum`.
 
 ## Development
 

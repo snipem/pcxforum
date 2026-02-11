@@ -24,7 +24,7 @@ clean:
 		rm -f $(BINARY_UNIX)
 
 run:
-		PCXFORUM_READLOG_FILE=/tmp/maniac_read \
+		PCXFORUM_READLOG_FILE=/tmp/pcxforumread \
 		PCXFORUM_DEBUG=true \
 		go run pcxforum.go
 	
