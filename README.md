@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/snipem/pcxforum.svg?branch=master)](https://travis-ci.com/snipem/pcxforum)
 [![Coverage Status](https://coveralls.io/repos/github/snipem/pcxforum/badge.svg)](https://coveralls.io/github/snipem/pcxforum)
 
-![Maniacforum Screenshot](res/pcxforum.png "Maniacforum Screenshot")
+![pcxforum Screenshot](res/pcxforum.png "pcxforum Screenshot")
 
 ## Download
 

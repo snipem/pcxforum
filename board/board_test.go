@@ -88,7 +88,7 @@ func TestMessage(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 
-	query := "Maniacforum Demake"
+	query := "pcxforum Demake"
 	authorName := "snimat"
 	messages, err := f.searchMessages(query, authorName, "-1", false, true)
 	assert.Nil(t, err)
