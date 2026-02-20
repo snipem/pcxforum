@@ -201,7 +201,30 @@ func (f *Forum) GetMessage(resource string) (Message, error) {
 	}
 
 	// Get content from article.messagebody
-	m.Content = doc.Find("article.messagebody").Text()
+	// Preserve quotations wrapped in <div class="quote"> by prefixing with '>' so they are
+	// recognised by the terminal renderer and highlighted.
+	// Use Contents() instead of Children() to also capture text nodes.
+	bodySel := doc.Find("article.messagebody")
+	var parts []string
+	bodySel.Contents().Each(func(i int, s *goquery.Selection) {
+		nodeName := goquery.NodeName(s)
+		if nodeName == "div" && s.HasClass("quote") {
+			parts = append(parts, "> "+strings.TrimSpace(s.Text()))
+		} else if nodeName == "#text" {
+			// Text node
+			text := strings.TrimSpace(s.Text())
+			if text != "" {
+				parts = append(parts, text)
+			}
+		} else if nodeName != "br" {
+			// Other elements (but skip <br> tags)
+			text := strings.TrimSpace(s.Text())
+			if text != "" {
+				parts = append(parts, text)
+			}
+		}
+	})
+	m.Content = strings.Join(parts, "\n\n")
 
 	// Get topic from header.messageheader div.msgsubject
 	m.Topic = doc.Find("header.messageheader > div.msgsubject").Text()

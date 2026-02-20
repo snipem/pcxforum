@@ -67,6 +67,22 @@ func TestMessage(t *testing.T) {
 	}
 }
 
+func TestMessageWithQuote(t *testing.T) {
+	// Test message with a citation (div class="quote")
+	// https://pcx-forum.com/pxmboard.php?mode=message&brdid=6&msgid=87404
+	message, err := f.GetMessage("pxmboard.php?mode=message&brdid=6&msgid=87404")
+	assert.Nil(t, err)
+
+	// Quote should be prefixed with "> " for TUI rendering
+	assert.True(t, strings.HasPrefix(message.Content, "> "), "Quote should start with '> ' prefix")
+
+	// The quoted content should contain the mydealz link
+	assert.Contains(t, message.Content, "mydealz.de", "Quote should contain the cited link")
+
+	// The response text after the quote should also be present
+	assert.Contains(t, message.Content, "danke für den Tipp", "Response text after quote should be captured")
+}
+
 func TestSearch(t *testing.T) {
 
 	query := "Nvidia RTX"
